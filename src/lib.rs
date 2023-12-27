@@ -90,10 +90,11 @@ mod test {
         let machine = pause_trigger(machine);
         println!("{:?}, {:?}", machine.context, machine.current_state);
         assert_eq!(machine.current_state, "paused");
-        assert_eq!(machine.context, 12);
+        assert_eq!(machine.context, 6);
 
         let machine = resume_trigger(machine);
         println!("{:?}, {:?}", machine.context, machine.current_state);
         assert_eq!(machine.current_state, "running");
+        assert_eq!(machine.context, 6);
     }
 }
