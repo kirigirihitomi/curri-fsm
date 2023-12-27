@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use curri::{identity::identity, if_else::if_else};
+use std::collections::HashMap;
 
 type State<T> = (Box<dyn Fn(T) -> T>, Box<dyn Fn(T) -> T>);
 pub struct Machine<T> {
@@ -32,12 +32,12 @@ pub fn transitions<T>(on: &'static str, from: &'static str, to: &'static str) ->
 }
 
 pub fn trigger<'a, T: 'a>(on: &'static str) -> Box<dyn Fn(Machine<T>) -> Machine<T> + 'a> {
-    let check = |m: &Machine<T>| {
+    let check = |m: &Machine<_>| {
         let eq = |(from, _): &(String, _)| from == &m.current_state;
         let check = |transitions: &Vec<(String, String)>| transitions.iter().any(eq);
         m.transitions.get(on).map_or(false, check)
     };
-    let if_fn = |m: Machine<T>| -> Machine<T> {
+    let if_fn = |m: Machine<_>| -> Machine<_> {
         let transitions = m.transitions.get(on).unwrap();
         let (_, to) = transitions.iter().find(|(from, _)| from == &m.current_state).unwrap();
         let (_, exit) = m.states.get(&m.current_state).unwrap();
@@ -78,9 +78,22 @@ mod test {
             transitions("stop", "running", "idle")
         )(machine);
 
-        let machine = trigger("start")(machine);
+        let start_trigger = trigger("start");
+        let pause_trigger = trigger("pause");
+        let resume_trigger = trigger("resume");
+
+        let machine = start_trigger(machine);
         println!("{:?}, {:?}", machine.context, machine.current_state);
         assert_eq!(machine.current_state, "running");
         assert_eq!(machine.context, 6);
+
+        let machine = pause_trigger(machine);
+        println!("{:?}, {:?}", machine.context, machine.current_state);
+        assert_eq!(machine.current_state, "paused");
+        assert_eq!(machine.context, 12);
+
+        let machine = resume_trigger(machine);
+        println!("{:?}, {:?}", machine.context, machine.current_state);
+        assert_eq!(machine.current_state, "running");
     }
 }
