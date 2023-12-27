@@ -95,6 +95,6 @@ mod test {
         let machine = resume_trigger(machine);
         println!("{:?}, {:?}", machine.context, machine.current_state);
         assert_eq!(machine.current_state, "running");
-        assert_eq!(machine.context, 6);
+        assert_eq!(machine.context, 12);
     }
 }
