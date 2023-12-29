@@ -7,6 +7,7 @@ type Def = dyn Fn(Machine<*const c_void>) -> Machine<*const c_void>;
 
 #[no_mangle]
 #[allow(non_snake_case)]
+#[allow(improper_ctypes_definitions)]
 pub extern "C" fn CurriMachine(context: *const c_void, default: *const c_char) -> *const c_void {
     let default = unsafe { CStr::from_ptr(default).to_str().unwrap() };
     let machine = Machine::<*const c_void>::new(context, default.to_string());
@@ -15,6 +16,7 @@ pub extern "C" fn CurriMachine(context: *const c_void, default: *const c_char) -
 
 #[no_mangle]
 #[allow(non_snake_case)]
+#[allow(improper_ctypes_definitions)]
 pub extern "C" fn CurriDropMachine(machine: *const c_void) {
     unsafe {
         let _ = Box::from_raw(machine as *mut Machine<*const c_void>);
@@ -72,8 +74,7 @@ pub extern "C" fn CurriCompose(f: *mut *mut Def, l: c_int) -> *mut Def {
 #[allow(improper_ctypes_definitions)]
 pub extern "C" fn CurriRun(act: *mut Def, machine: *const c_void) -> *const c_void {
     let machine = unsafe { Box::from_raw(machine as *mut Machine<*const c_void>) };
-    let act = unsafe { Box::from_raw(act) };
-    // let act = unsafe { Box::from_raw(act) };
+    let act = unsafe { Box::from_raw(act as *mut Def) };
     let machine = Box::new(act(*machine));
     Box::into_raw(machine) as *const c_void
 }
@@ -144,20 +145,20 @@ mod tests {
         let raw_array = [transition1, transition2, transition3];
         let as_ptr = raw_array.as_ptr() as *mut *mut Def;
         let com = CurriCompose(as_ptr, 3);
-        let machine = CurriRun(com, machine);
+        let machine = CurriRun(com, machine as *const c_void);
 
         let trigger = CurriTrigger(transition_ptr);
-        let machine = CurriRun(trigger, machine);
+        let machine = CurriRun(trigger, machine as *const c_void);
         let machine = unsafe { Box::from_raw(machine as *mut Machine<*const c_void>) };
         assert_eq!(machine.current_state, "state2");
         let machine = Box::into_raw(machine) as *const c_void;
         let trigger = CurriTrigger(transition_ptr);
-        let machine = CurriRun(trigger, machine);
+        let machine = CurriRun(trigger, machine as *const c_void);
         let machine = unsafe { Box::from_raw(machine as *mut Machine<*const c_void>) };
         assert_eq!(machine.current_state, "state3");
         let machine = Box::into_raw(machine) as *const c_void;
         let trigger = CurriTrigger(transition_ptr);
-        let machine = CurriRun(trigger, machine);
+        let machine = CurriRun(trigger, machine as *const c_void);
         let machine = unsafe { Box::from_raw(machine as *mut Machine<*const c_void>) };
         assert_eq!(machine.current_state, "state1");
     }
