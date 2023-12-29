@@ -1,5 +1,5 @@
 use curri::{identity::identity, if_else::if_else};
-use std::{collections::HashMap};
+use std::collections::HashMap;
 
 type State<T> = (Box<dyn Fn(T) -> T>, Box<dyn Fn(T) -> T>);
 
@@ -11,7 +11,7 @@ pub struct Machine<T> {
 }
 
 impl<T> Machine<T> {
-    pub fn new(context: T, default: String ) -> Self {
+    pub fn new(context: T, default: String) -> Self {
         Machine {
             context,
             current_state: default,
@@ -45,13 +45,15 @@ pub fn transitions<T>(on: &'static str, from: &'static str, to: &'static str) ->
 
 pub fn trigger<'a, T: 'a>(on: &'static str) -> Box<dyn Fn(Machine<T>) -> Machine<T> + 'a> {
     let check = |m: &Machine<_>| {
-        let eq = |(from, _): &(String, _)| from == &m.current_state;
+        let eq = |(from, _): &(String, _)| from.is_empty() || from == &m.current_state;
         let check = |transitions: &Vec<(String, String)>| transitions.iter().any(eq);
         m.transitions.get(on).map_or(false, check)
     };
+
     let if_fn = |m: Machine<_>| -> Machine<_> {
+        let eq = |(from, _): &&(String, _)| from.is_empty() || from == &m.current_state;
         let transitions = m.transitions.get(on).unwrap();
-        let (_, to) = transitions.iter().find(|(from, _)| from == &m.current_state).unwrap();
+        let (_, to) = transitions.iter().find(eq).unwrap();
         let (_, exit) = m.states.get(&m.current_state).unwrap();
         let (enter, _) = m.states.get(to).unwrap();
         let context = enter(exit(m.context));
