@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 description = "A simple Functional Programming Finite State Machine With curri."
 license = "MIT"
-repository = "https://github.com/kirigirihitomi/curri.git"
+repository = "https://github.com/kirigirihitomi/curri-fsm.git"
 authors = ["kirigirihitomi <448350599infw@gmail.com>"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
