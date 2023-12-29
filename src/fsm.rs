@@ -1,4 +1,4 @@
-use curri::{identity::identity, if_else::if_else};
+use curri::{identity, if_else};
 use std::collections::HashMap;
 
 type State<T> = (Box<dyn Fn(T) -> T>, Box<dyn Fn(T) -> T>);

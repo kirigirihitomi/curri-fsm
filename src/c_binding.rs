@@ -101,9 +101,6 @@ mod tests {
 
         let machine = CurriMachine(context, default_ptr);
         CurriDropMachine(machine);
-
-        // 这里我们不能直接测试 machine，因为它已经被释放了。
-        // 但是，我们可以确保 drop 函数不会 panic。
     }
 
     #[test]
