@@ -1,2 +1,2 @@
 pub mod fsm;
-pub mod c_binding;
+pub mod c_bindings;

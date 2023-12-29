@@ -5,6 +5,7 @@ use std::ffi::*;
 
 type Def = dyn Fn(Machine<*const c_void>) -> Machine<*const c_void>;
 
+#[no_mangle]
 #[allow(non_snake_case)]
 pub extern "C" fn CurriMachine(context: *const c_void, default: *const c_char) -> *const c_void {
     let default = unsafe { CStr::from_ptr(default).to_str().unwrap() };
@@ -12,6 +13,7 @@ pub extern "C" fn CurriMachine(context: *const c_void, default: *const c_char) -
     Box::into_raw(Box::new(machine)) as *const c_void
 }
 
+#[no_mangle]
 #[allow(non_snake_case)]
 pub extern "C" fn CurriDropMachine(machine: *const c_void) {
     unsafe {
@@ -19,6 +21,7 @@ pub extern "C" fn CurriDropMachine(machine: *const c_void) {
     }
 }
 
+#[no_mangle]
 #[allow(non_snake_case)]
 #[allow(improper_ctypes_definitions)]
 pub extern "C" fn CurriState(
@@ -31,6 +34,7 @@ pub extern "C" fn CurriState(
     Box::into_raw(state)
 }
 
+#[no_mangle]
 #[allow(non_snake_case)]
 #[allow(improper_ctypes_definitions)]
 pub extern "C" fn CurriTransitions(on: *const c_char, from: *const c_char, to: *const c_char) -> *mut Def {
@@ -41,6 +45,7 @@ pub extern "C" fn CurriTransitions(on: *const c_char, from: *const c_char, to: *
     Box::into_raw(transitions)
 }
 
+#[no_mangle]
 #[allow(non_snake_case)]
 #[allow(improper_ctypes_definitions)]
 pub extern "C" fn CurriTrigger(on: *const c_char) -> *mut Def {
@@ -49,6 +54,7 @@ pub extern "C" fn CurriTrigger(on: *const c_char) -> *mut Def {
     Box::into_raw(trigger)
 }
 
+#[no_mangle]
 #[allow(non_snake_case)]
 #[allow(improper_ctypes_definitions)]
 pub extern "C" fn CurriCompose(f: *mut *mut Def, l: c_int) -> *mut Def {
@@ -61,6 +67,7 @@ pub extern "C" fn CurriCompose(f: *mut *mut Def, l: c_int) -> *mut Def {
     Box::into_raw(compose)
 }
 
+#[no_mangle]
 #[allow(non_snake_case)]
 #[allow(improper_ctypes_definitions)]
 pub extern "C" fn CurriRun(act: *mut Def, machine: *const c_void) -> *const c_void {
