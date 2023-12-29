@@ -65,6 +65,8 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 [[package]]
 name = "curri"
 version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "144e43d9c87269f58d566d506d263759e8708e9f2e7159ed2bf298034258bc54"
 dependencies = [
  "bevy_utils",
 ]
