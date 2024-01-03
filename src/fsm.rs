@@ -1,4 +1,4 @@
-use curri::{identity, if_else};
+use curri::{identity, if_else, Curry};
 use std::collections::HashMap;
 
 type State<T> = (Box<dyn Fn(T) -> T>, Box<dyn Fn(T) -> T>);
@@ -11,10 +11,10 @@ pub struct Machine<T> {
 }
 
 impl<T> Machine<T> {
-    pub fn new(context: T, default: String) -> Self {
+    pub fn new(context: T, state: String) -> Self {
         Machine {
             context,
-            current_state: default,
+            current_state: state,
             states: HashMap::<String, State<T>>::new(),
             transitions: HashMap::<String, Vec<(String, String)>>::new(),
         }
@@ -27,7 +27,7 @@ where
     G: Fn(T) -> T + Copy + 'static,
 {
     Box::new(move |mut machine: Machine<T>| {
-        machine.states.insert(name.to_string(), (Box::new(enter), Box::new(exit)));
+        machine.states.insert(name.to_string(), (enter.curry(), exit.curry()));
         machine
     })
 }
@@ -45,13 +45,13 @@ pub fn transitions<T>(on: &'static str, from: &'static str, to: &'static str) ->
 
 pub fn trigger<'a, T: 'a>(on: &'static str) -> Box<dyn Fn(Machine<T>) -> Machine<T> + 'a> {
     let check = |m: &Machine<_>| {
-        let eq = |(from, _): &(String, _)| from.is_empty() || from == &m.current_state;
+        let eq = |(from, _): &(String, _)| from == "*" || from == &m.current_state;
         let check = |transitions: &Vec<(String, String)>| transitions.iter().any(eq);
         m.transitions.get(on).map_or(false, check)
     };
 
     let if_fn = |m: Machine<_>| -> Machine<_> {
-        let eq = |(from, _): &&(String, _)| from.is_empty() || from == &m.current_state;
+        let eq = |(from, _): &&(String, _)| from == "*" || from == &m.current_state;
         let transitions = m.transitions.get(on).unwrap();
         let (_, to) = transitions.iter().find(eq).unwrap();
         let (_, exit) = m.states.get(&m.current_state).unwrap();

@@ -3,11 +3,12 @@ typedef struct Closure
 {
     void *a;
     void *b;
-} Closure; // rust的闭包大小为 2 * usize
-extern void *CurriMachine(void *, const char *);
-extern void *CurriDropMachine(void *);
-extern Closure CurriState(const char *, fn, fn);
-extern Closure CurriTransitions(const char *, const char *, const char *);
-extern Closure CurriTrigger(const char *);
-extern Closure CurriCompose(Closure *, int);
-extern void *CurriRun(Closure, void *);
+} Closure; // rust fat pointer
+
+extern "C" void *CurriMachine(void *, const char *);
+extern "C" void *CurriDropMachine(void *);
+extern "C" Closure CurriState(const char *, fn, fn);
+extern "C" Closure CurriTransitions(const char *, const char *, const char *);
+extern "C" Closure CurriTrigger(const char *);
+extern "C" Closure CurriCompose(Closure *, int);
+extern "C" void *CurriRun(Closure, void *);
