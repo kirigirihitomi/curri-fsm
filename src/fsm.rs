@@ -50,19 +50,16 @@ pub fn trigger<'a, T: 'a>(on: &'static str) -> Box<dyn Fn(Machine<T>) -> Machine
         m.transitions.get(on).map_or(false, check)
     };
 
-    let if_fn = |m: Machine<_>| -> Machine<_> {
+    let if_fn = |mut m: Machine<_>| -> Machine<_> {
         let eq = |(from, _): &&(String, _)| from == "*" || from == &m.current_state;
         let transitions = m.transitions.get(on).unwrap();
         let (_, to) = transitions.iter().find(eq).unwrap();
         let (_, exit) = m.states.get(&m.current_state).unwrap();
         let (enter, _) = m.states.get(to).unwrap();
         let context = enter(exit(m.context));
-        Machine {
-            context,
-            current_state: to.to_string(),
-            states: m.states,
-            transitions: m.transitions,
-        }
+        m.context = context;
+        m.current_state = to.to_string();
+        m
     };
     let else_fn = identity;
     if_else(check, if_fn, else_fn)
